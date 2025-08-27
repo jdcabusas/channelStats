@@ -1,12 +1,17 @@
 import sys
+import os
 import pandas as pd
 from get_top_videos import get_channel_videos_and_shorts
 from datetime import datetime, timezone
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # ==============================
 #    CONFIGURATION
 # ==============================
-YOUTUBE_API_KEY = "AIzaSyDkT74UC9iq4pFcCvXqTzPgAGhLT0Uo6bo"  # Replace with your actual YouTube Data API key
+YOUTUBE_API_KEY = os.getenv('YOUTUBE_API_KEY')
 
 # ==============================
 #    COMMAND-LINE INTERFACE

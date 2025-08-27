@@ -1,12 +1,17 @@
 import sys
+import os
 import requests
 import re
 import pandas as pd
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # ==============================
 #  CONFIG
 # ==============================
-YOUTUBE_API_KEY = "AIzaSyDkT74UC9iq4pFcCvXqTzPgAGhLT0Uo6bo"  # Replace with your own YouTube Data API key
+YOUTUBE_API_KEY = os.getenv('YOUTUBE_API_KEY')
 
 # YouTube API endpoints
 CHANNELS_API_URL = "https://www.googleapis.com/youtube/v3/channels"

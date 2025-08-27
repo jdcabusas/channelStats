@@ -18,12 +18,13 @@ def index():
 @app.route('/get_data', methods=['GET'])
 def get_data():
     """
-    Endpoint to retrieve top videos and shorts within a specified date range.
+    Endpoint to retrieve top videos and shorts with optional date range and keyword filtering.
 
     Query Parameters:
         channel_url (str): URL of the YouTube channel.
-        start_date (str): Start date in YYYY-MM-DD format.
-        end_date (str): End date in YYYY-MM-DD format.
+        start_date (str, optional): Start date in YYYY-MM-DD format.
+        end_date (str, optional): End date in YYYY-MM-DD format.
+        keyword (str, optional): Keyword to search in title and description.
 
     Returns:
         JSON response with top videos and shorts.
@@ -32,14 +33,15 @@ def get_data():
     channel_url = request.args.get('channel_url')
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
+    keyword = request.args.get('keyword')
 
     # Validate parameters
-    if not channel_url or not start_date or not end_date:
-        return jsonify({"error": "Missing required parameters: channel_url, start_date, end_date"}), 400
+    if not channel_url:
+        return jsonify({"error": "Missing required parameter: channel_url"}), 400
 
     # Call the process_videos function
     try:
-        df_videos_sorted, df_shorts_sorted = get_videos(channel_url, start_date, end_date)
+        df_videos_sorted, df_shorts_sorted = get_videos(channel_url, start_date, end_date, keyword)
     except ValueError as ve:
         return jsonify({"error": str(ve)}), 400
     except Exception as e:

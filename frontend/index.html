@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Channel Stats</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #ff0000;
+            color: white;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .form-section {
+            padding: 40px;
+            background: #f8f9fa;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1rem;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .date-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #e8f4fd;
+            border-radius: 8px;
+            border: 2px solid #b3d9ff;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            font-size: 1rem;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .date-inputs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .date-inputs select {
+            flex: 1;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            color: #667eea;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results {
+            display: none;
+            padding: 40px;
+        }
+
+        .results-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .results-header h2 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .search-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            color: #666;
+            text-align: center;
+            border-left: 4px solid #667eea;
+        }
+
+        .search-info strong {
+            color: #333;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            color: #333;
+            margin: 40px 0 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 40px 0 20px;
+        }
+
+        .section-header h3 {
+            font-size: 1.8rem;
+            color: #333;
+            margin: 0;
+            position: relative;
+        }
+
+        .section-header h3::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px;
+        }
+
+        .sort-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sort-controls label {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .sort-controls select {
+            padding: 8px 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
+
+        .sort-controls select:hover {
+            border-color: #667eea;
+        }
+
+        .sort-controls select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .results-per-page {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .results-per-page label {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .results-per-page select {
+            padding: 6px 10px;
+            border: 2px solid #e1e5e9;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
+
+        .results-per-page select:hover {
+            border-color: #667eea;
+        }
+
+        .results-per-page select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pagination button {
+            padding: 8px 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 6px;
+            background: white;
+            color: #333;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination button.active {
+            background: #667eea;
+            border-color: #667eea;
+            color: white;
+        }
+
+        .pagination-info {
+            color: #666;
+            font-size: 0.9rem;
+            margin: 0 10px;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .video-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .video-thumbnail {
+            position: relative;
+            width: 100%;
+            height: 180px;
+            overflow: hidden;
+        }
+
+        .video-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-duration {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .video-info {
+            padding: 20px;
+        }
+
+        .video-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .video-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .view-count {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .publish-date {
+            color: #888;
+        }
+
+        .error {
+            background: #ff4757;
+            color: white;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .date-group {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .video-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .sort-controls {
+                align-self: flex-end;
+            }
+            
+            .pagination-container {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .pagination {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 YouTube Channel Stats</h1>
+            <p>Analyze your favorite YouTube channels and discover their top performing videos</p>
+        </div>
+
+        <div class="form-section">
+            <form id="channelForm">
+                <div class="form-group">
+                    <label for="channelUrl">YouTube Channel URL</label>
+                    <input type="url" id="channelUrl" placeholder="https://www.youtube.com/@ChannelName" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="keyword">Search Keywords (Optional)</label>
+                    <input type="text" id="keyword" placeholder="Search for keywords in title or description">
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="searchAll" onchange="toggleDateInputs()">
+                    <label for="searchAll">🔍 Search ALL videos (ignore date range)</label>
+                </div>
+
+                <div class="date-group">
+                    <div class="form-group">
+                        <label for="startMonth">Start Date</label>
+                        <div class="date-inputs">
+                            <select id="startMonth" required>
+                                <option value="">Month</option>
+                                <option value="01">January</option>
+                                <option value="02">February</option>
+                                <option value="03">March</option>
+                                <option value="04">April</option>
+                                <option value="05">May</option>
+                                <option value="06">June</option>
+                                <option value="07">July</option>
+                                <option value="08">August</option>
+                                <option value="09">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                            <select id="startYear" required>
+                                <option value="">Year</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="endMonth">End Date</label>
+                        <div class="date-inputs">
+                            <select id="endMonth" required>
+                                <option value="">Month</option>
+                                <option value="01">January</option>
+                                <option value="02">February</option>
+                                <option value="03">March</option>
+                                <option value="04">April</option>
+                                <option value="05">May</option>
+                                <option value="06">June</option>
+                                <option value="07">July</option>
+                                <option value="08">August</option>
+                                <option value="09">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                            <select id="endYear" required>
+                                <option value="">Year</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">🔍 Analyze Channel</button>
+            </form>
+        </div>
+
+        <div class="error" id="errorMessage"></div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Fetching channel data... This may take a few moments</p>
+        </div>
+
+        <div class="results" id="results">
+            <div class="results-header">
+                <h2 id="channelName">Channel Analysis Results</h2>
+                <div class="search-info" id="searchInfo"></div>
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="videoCount">0</div>
+                        <div class="stat-label">Videos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="shortsCount">0</div>
+                        <div class="stat-label">Shorts</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalViews">0</div>
+                        <div class="stat-label">Total Views</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <h3>🎥 Top Videos</h3>
+                <div class="sort-controls">
+                    <label for="videoSort">Sort by:</label>
+                    <select id="videoSort" onchange="sortVideos('videos', this.value)">
+                        <option value="views">View Count</option>
+                        <option value="date">Upload Date</option>
+                    </select>
+                </div>
+            </div>
+            <div class="video-grid" id="videosGrid"></div>
+            
+            <div class="pagination-container" id="videosPagination" style="display: none;">
+                <div class="results-per-page">
+                    <label for="videosPerPage">Results per page:</label>
+                    <select id="videosPerPage" onchange="updatePagination('videos')">
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+                <div class="pagination" id="videosPages"></div>
+            </div>
+
+            <div class="section-header">
+                <h3>📱 Top Shorts</h3>
+                <div class="sort-controls">
+                    <label for="shortsSort">Sort by:</label>
+                    <select id="shortsSort" onchange="sortVideos('shorts', this.value)">
+                        <option value="views">View Count</option>
+                        <option value="date">Upload Date</option>
+                    </select>
+                </div>
+            </div>
+            <div class="video-grid" id="shortsGrid"></div>
+            
+            <div class="pagination-container" id="shortsPagination" style="display: none;">
+                <div class="results-per-page">
+                    <label for="shortsPerPage">Results per page:</label>
+                    <select id="shortsPerPage" onchange="updatePagination('shorts')">
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+                <div class="pagination" id="shortsPages"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize year dropdowns
+        function initializeYears() {
+            const currentYear = new Date().getFullYear();
+            const startYear = 2005; // YouTube launched in 2005
+            
+            const startYearSelect = document.getElementById('startYear');
+            const endYearSelect = document.getElementById('endYear');
+            
+            for (let year = currentYear; year >= startYear; year--) {
+                const option1 = new Option(year, year);
+                const option2 = new Option(year, year);
+                startYearSelect.add(option1);
+                endYearSelect.add(option2);
+            }
+        }
+
+        // Format number with commas
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+
+        // Format duration from seconds
+        function formatDuration(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            
+            if (hours > 0) {
+                return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }
+            return `${minutes}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+
+        // Get YouTube thumbnail URL
+        function getThumbnailUrl(videoId) {
+            return `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+        }
+
+        // Extract video ID from URL
+        function extractVideoId(url) {
+            const match = url.match(/[?&]v=([^&]+)/);
+            return match ? match[1] : null;
+        }
+
+        // Toggle date inputs based on search all checkbox
+        function toggleDateInputs() {
+            const searchAll = document.getElementById('searchAll').checked;
+            const dateGroup = document.querySelector('.date-group');
+            const dateInputs = dateGroup.querySelectorAll('select');
+            
+            if (searchAll) {
+                dateGroup.style.opacity = '0.5';
+                dateGroup.style.pointerEvents = 'none';
+                dateInputs.forEach(input => {
+                    input.removeAttribute('required');
+                });
+            } else {
+                dateGroup.style.opacity = '1';
+                dateGroup.style.pointerEvents = 'auto';
+                dateInputs.forEach(input => {
+                    input.setAttribute('required', 'required');
+                });
+            }
+        }
+
+        // Create video card HTML
+        function createVideoCard(video) {
+            const videoId = extractVideoId(video.url);
+            const thumbnailUrl = getThumbnailUrl(videoId);
+            
+            return `
+                <div class="video-card" onclick="window.open('${video.url}', '_blank')">
+                    <div class="video-thumbnail">
+                        <img src="${thumbnailUrl}" alt="${video.title}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDMyMCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMjAiIGhlaWdodD0iMTgwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMjggMTEyTDE5MiA4MEwxMjggNDhWMTEyWiIgZmlsbD0iI0NDQ0NDQyIvPgo8L3N2Zz4K'">
+                        ${video.durationSec ? `<span class="video-duration">${formatDuration(video.durationSec)}</span>` : ''}
+                    </div>
+                    <div class="video-info">
+                        <h4 class="video-title">${video.title}</h4>
+                        <div class="video-stats">
+                            <span class="view-count">${formatNumber(video.viewCount)} views</span>
+                            <span class="publish-date">${formatDate(video.publishedAt)}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Show error message
+        function showError(message) {
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+        }
+
+        // Hide error message
+        function hideError() {
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+
+        // Handle form submission
+        document.getElementById('channelForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            hideError();
+            
+            const channelUrl = document.getElementById('channelUrl').value;
+            const keyword = document.getElementById('keyword').value;
+            const searchAll = document.getElementById('searchAll').checked;
+            const startMonth = document.getElementById('startMonth').value;
+            const startYear = document.getElementById('startYear').value;
+            const endMonth = document.getElementById('endMonth').value;
+            const endYear = document.getElementById('endYear').value;
+            
+            if (!channelUrl) {
+                showError('Please enter a YouTube channel URL');
+                return;
+            }
+            
+            if (!searchAll && (!startMonth || !startYear || !endMonth || !endYear)) {
+                showError('Please fill in the date range or check "Search ALL videos"');
+                return;
+            }
+            
+            let apiUrl = `http://localhost:5000/get_data?channel_url=${encodeURIComponent(channelUrl)}`;
+            let searchParams = { channelUrl, keyword, searchAll };
+            
+            if (!searchAll) {
+                const startDate = `${startYear}-${startMonth}-01`;
+                const endDate = `${endYear}-${endMonth}-${new Date(endYear, endMonth, 0).getDate()}`;
+                apiUrl += `&start_date=${startDate}&end_date=${endDate}`;
+                searchParams.startDate = startDate;
+                searchParams.endDate = endDate;
+            }
+            
+            if (keyword) {
+                apiUrl += `&keyword=${encodeURIComponent(keyword)}`;
+            }
+            
+            // Show loading
+            document.querySelector('.form-section').style.display = 'none';
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('loading').style.display = 'block';
+            
+            try {
+                const response = await fetch(apiUrl);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // Hide loading
+                document.getElementById('loading').style.display = 'none';
+                
+                // Display results
+                displayResults(data, searchParams);
+                
+            } catch (error) {
+                document.getElementById('loading').style.display = 'none';
+                document.querySelector('.form-section').style.display = 'block';
+                showError(`Error fetching data: ${error.message}. Make sure your backend server is running on localhost:5000`);
+            }
+        });
+
+        // Display results
+        function displayResults(data, searchParams) {
+            const videos = data.top_videos || [];
+            const shorts = data.top_shorts || [];
+            
+            // Store original data for sorting
+            originalVideosData = videos;
+            originalShortsData = shorts;
+            
+            // Reset sort dropdowns to default
+            document.getElementById('videoSort').value = 'views';
+            document.getElementById('shortsSort').value = 'views';
+            
+            // Update stats
+            document.getElementById('videoCount').textContent = videos.length;
+            document.getElementById('shortsCount').textContent = shorts.length;
+            
+            const totalViews = [...videos, ...shorts].reduce((sum, item) => sum + item.viewCount, 0);
+            document.getElementById('totalViews').textContent = formatNumber(totalViews);
+            
+            // Update channel name
+            const channelName = searchParams.channelUrl.includes('@') ? 
+                searchParams.channelUrl.split('@')[1].split('?')[0] : 
+                'Channel';
+            document.getElementById('channelName').textContent = `${channelName} - Analysis Results`;
+            
+            // Update search info
+            let searchInfoText = '';
+            if (searchParams.searchAll) {
+                searchInfoText = '<strong>Search Range:</strong> All videos from this channel';
+            } else {
+                searchInfoText = `<strong>Date Range:</strong> ${formatDate(searchParams.startDate)} to ${formatDate(searchParams.endDate)}`;
+            }
+            
+            if (searchParams.keyword) {
+                searchInfoText += ` | <strong>Keywords:</strong> "${searchParams.keyword}"`;
+            }
+            
+            document.getElementById('searchInfo').innerHTML = searchInfoText;
+            
+            // Reset pagination state
+            currentVideosPage = 1;
+            currentShortsPage = 1;
+            
+            // Initialize pagination for videos
+            if (videos.length > 0) {
+                updatePagination('videos');
+            } else {
+                const noResultsMessage = searchParams.keyword ? 
+                    'No videos found matching your search criteria' : 
+                    'No videos found in the selected date range';
+                document.getElementById('videosGrid').innerHTML = `<p style="text-align: center; color: #666; grid-column: 1/-1;">${noResultsMessage}</p>`;
+                document.getElementById('videosPagination').style.display = 'none';
+            }
+            
+            // Initialize pagination for shorts
+            if (shorts.length > 0) {
+                updatePagination('shorts');
+            } else {
+                const noResultsMessage = searchParams.keyword ? 
+                    'No shorts found matching your search criteria' : 
+                    'No shorts found in the selected date range';
+                document.getElementById('shortsGrid').innerHTML = `<p style="text-align: center; color: #666; grid-column: 1/-1;">${noResultsMessage}</p>`;
+                document.getElementById('shortsPagination').style.display = 'none';
+            }
+            
+            // Show results
+            document.getElementById('results').style.display = 'block';
+            
+            // Add back button functionality
+            const backButton = document.createElement('button');
+            backButton.textContent = '← New Search';
+            backButton.className = 'submit-btn';
+            backButton.style.marginBottom = '20px';
+            backButton.onclick = () => {
+                document.getElementById('results').style.display = 'none';
+                document.querySelector('.form-section').style.display = 'block';
+                document.getElementById('channelForm').reset();
+                toggleDateInputs(); // Reset date inputs state
+                // Clear stored data and reset pagination
+                originalVideosData = [];
+                originalShortsData = [];
+                currentVideosPage = 1;
+                currentShortsPage = 1;
+                // Reset dropdowns
+                document.getElementById('videosPerPage').value = '20';
+                document.getElementById('shortsPerPage').value = '20';
+                videosPerPage = 20;
+                shortsPerPage = 20;
+            };
+            
+            const resultsHeader = document.querySelector('.results-header');
+            if (!resultsHeader.querySelector('button')) {
+                resultsHeader.insertBefore(backButton, resultsHeader.firstChild);
+            }
+        }
+
+        // Store original data for sorting
+        let originalVideosData = [];
+        let originalShortsData = [];
+        
+        // Pagination state
+        let currentVideosPage = 1;
+        let currentShortsPage = 1;
+        let videosPerPage = 20;
+        let shortsPerPage = 20;
+
+        // Sort videos function
+        function sortVideos(type, sortBy) {
+            const data = type === 'videos' ? originalVideosData : originalShortsData;
+            
+            if (!data || data.length === 0) return;
+            
+            let sortedData;
+            
+            if (sortBy === 'views') {
+                // Sort by view count (descending - highest first)
+                sortedData = [...data].sort((a, b) => b.viewCount - a.viewCount);
+            } else if (sortBy === 'date') {
+                // Sort by upload date (descending - newest first)
+                sortedData = [...data].sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+            }
+            
+            // Update the stored data with sorted data
+            if (type === 'videos') {
+                originalVideosData = sortedData;
+                currentVideosPage = 1; // Reset to first page
+            } else {
+                originalShortsData = sortedData;
+                currentShortsPage = 1; // Reset to first page
+            }
+            
+            // Update display with pagination
+            updatePagination(type);
+        }
+
+        // Update pagination and display
+        function updatePagination(type) {
+            const data = type === 'videos' ? originalVideosData : originalShortsData;
+            const gridId = type === 'videos' ? 'videosGrid' : 'shortsGrid';
+            const paginationId = type === 'videos' ? 'videosPagination' : 'shortsPagination';
+            const pagesId = type === 'videos' ? 'videosPages' : 'shortsPages';
+            const perPageSelectId = type === 'videos' ? 'videosPerPage' : 'shortsPerPage';
+            
+            if (!data || data.length === 0) {
+                document.getElementById(paginationId).style.display = 'none';
+                return;
+            }
+
+            // Update results per page from dropdown
+            const perPageValue = document.getElementById(perPageSelectId).value;
+            const resultsPerPage = parseInt(perPageValue);
+            
+            if (type === 'videos') {
+                videosPerPage = resultsPerPage;
+            } else {
+                shortsPerPage = resultsPerPage;
+            }
+            
+            const currentPage = type === 'videos' ? currentVideosPage : currentShortsPage;
+            const totalPages = Math.ceil(data.length / resultsPerPage);
+            
+            // Show pagination only if more than one page
+            const paginationContainer = document.getElementById(paginationId);
+            if (totalPages > 1) {
+                paginationContainer.style.display = 'flex';
+                renderPagination(type, currentPage, totalPages);
+            } else {
+                paginationContainer.style.display = 'none';
+            }
+            
+            // Display current page data
+            displayPage(type, currentPage);
+        }
+
+        // Display specific page
+        function displayPage(type, page) {
+            const data = type === 'videos' ? originalVideosData : originalShortsData;
+            const gridId = type === 'videos' ? 'videosGrid' : 'shortsGrid';
+            const resultsPerPage = type === 'videos' ? videosPerPage : shortsPerPage;
+            
+            const startIndex = (page - 1) * resultsPerPage;
+            const endIndex = startIndex + resultsPerPage;
+            const pageData = data.slice(startIndex, endIndex);
+            
+            const grid = document.getElementById(gridId);
+            if (pageData.length > 0) {
+                grid.innerHTML = pageData.map(createVideoCard).join('');
+            } else {
+                const noResultsMessage = 'No results found for this page';
+                grid.innerHTML = `<p style="text-align: center; color: #666; grid-column: 1/-1;">${noResultsMessage}</p>`;
+            }
+        }
+
+        // Render pagination controls
+        function renderPagination(type, currentPage, totalPages) {
+            const pagesId = type === 'videos' ? 'videosPages' : 'shortsPages';
+            const pagesContainer = document.getElementById(pagesId);
+            
+            let paginationHTML = '';
+            
+            // Previous button
+            paginationHTML += `<button onclick="changePage('${type}', ${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>◀ Previous</button>`;
+            
+            // Page numbers
+            const maxVisiblePages = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+            
+            // Adjust start page if we're near the end
+            if (endPage - startPage + 1 < maxVisiblePages) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+            
+            // First page and ellipsis
+            if (startPage > 1) {
+                paginationHTML += `<button onclick="changePage('${type}', 1)">1</button>`;
+                if (startPage > 2) {
+                    paginationHTML += `<span class="pagination-info">...</span>`;
+                }
+            }
+            
+            // Page number buttons
+            for (let i = startPage; i <= endPage; i++) {
+                const activeClass = i === currentPage ? 'active' : '';
+                paginationHTML += `<button class="${activeClass}" onclick="changePage('${type}', ${i})">${i}</button>`;
+            }
+            
+            // Last page and ellipsis
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    paginationHTML += `<span class="pagination-info">...</span>`;
+                }
+                paginationHTML += `<button onclick="changePage('${type}', ${totalPages})">${totalPages}</button>`;
+            }
+            
+            // Next button
+            paginationHTML += `<button onclick="changePage('${type}', ${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Next ▶</button>`;
+            
+            // Page info
+            const data = type === 'videos' ? originalVideosData : originalShortsData;
+            const resultsPerPage = type === 'videos' ? videosPerPage : shortsPerPage;
+            const startResult = (currentPage - 1) * resultsPerPage + 1;
+            const endResult = Math.min(currentPage * resultsPerPage, data.length);
+            paginationHTML += `<span class="pagination-info">Showing ${startResult}-${endResult} of ${data.length}</span>`;
+            
+            pagesContainer.innerHTML = paginationHTML;
+        }
+
+        // Change page function
+        function changePage(type, page) {
+            const totalPages = type === 'videos' 
+                ? Math.ceil(originalVideosData.length / videosPerPage)
+                : Math.ceil(originalShortsData.length / shortsPerPage);
+            
+            if (page < 1 || page > totalPages) return;
+            
+            if (type === 'videos') {
+                currentVideosPage = page;
+            } else {
+                currentShortsPage = page;
+            }
+            
+            updatePagination(type);
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeYears();
+        });
+    </script>
+</body>
+</html>
